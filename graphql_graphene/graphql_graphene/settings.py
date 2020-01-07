@@ -39,12 +39,15 @@ DJANGO_APPS = [
     'django.contrib.staticfiles',
 ]
 
+INTERNAL_APP = [
+    'ingredients.apps.IngredientsConfig',
+]
+
 THIRD_PARTY_APPS = [
-    # 'django.contrib.staticfiles', # Required for GraphiQL
     'graphene_django'
 ]
 
-INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS
+INSTALLED_APPS = DJANGO_APPS + INTERNAL_APP + THIRD_PARTY_APPS
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
