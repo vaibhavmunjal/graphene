@@ -18,7 +18,13 @@ from django.urls import path
 
 from graphene_django.views import GraphQLView
 
+from django.contrib.auth.mixins import LoginRequiredMixin
+
+class PrivateGraphql(LoginRequiredMixin, GraphQLView):
+    pass
+
 urlpatterns = [
     path('admin/', admin.site.urls),
     path("graphql", GraphQLView.as_view(graphiql=True)),
+    path("private", PrivateGraphql.as_view(graphiql=True)),
 ]
