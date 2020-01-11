@@ -88,5 +88,60 @@ class Query(object):
         return None
 
 
+class CategoryMutation(graphene.Mutation):
+    class Arguments:
+        # The input arguments for this mutation
+        name = graphene.String(required=True)
+        id = graphene.ID()
 
+    # The class attributes define the response of the mutation
+    category = graphene.Field(CategoryType)
+
+    def mutate(self, info, name, id):
+        category = Category.objects.get(pk=id)
+        category.name = name
+        category.save()
+        # Notice we return an instance of this mutation
+        return CategoryMutation(category=category)
+
+
+class CategoryInput(graphene.InputObjectType):
+    id = graphene.ID()
+    name = graphene.String()
+    # category = graphene.InputField(CategoryType)
+
+
+class IngredientMutation(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+        name = graphene.String(required=True)
+        notes = graphene.String()
+        category = CategoryInput()
+
+    ingredient = graphene.Field(IngredientType)
+
+    def mutate(self, info, **kwargs):
+        ingredient = Ingredient.objects.get(pk=kwargs.get('id'))
+        ingredient.name = kwargs.get('name', ingredient.name)
+        ingredient.notes = kwargs.get('notes', ingredient.notes)
+        category = kwargs.get('category', None)
+        if category:
+            category_id = category.get('id', None)
+            category_name = category.get('name', None)
+
+            if category_id:
+                ingredient.category = Category.objects.get(pk=category_id)
+                ingredient.save()
+
+            if category_name:
+                ingredient.category.name = category_name
+                    # ingredient.save()
+
+        ingredient.save()
+        return IngredientMutation(ingredient=ingredient)
+
+
+class Mutation:
+    update_category = CategoryMutation.Field()
+    update_ingredient = IngredientMutation.Field()
 
