@@ -17,7 +17,7 @@ class IngredientType(DjangoObjectType):
         model = Ingredient
 
     @staticmethod
-    def def get_queryset(cls, queryset, info):
+    def get_queryset(cls, queryset, info):
         if info.context.user.is_anonymous:
             return queryset # Do any specific filter here
         return queryset #return super query all()
