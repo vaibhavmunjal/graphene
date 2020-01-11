@@ -141,7 +141,70 @@ class IngredientMutation(graphene.Mutation):
         return IngredientMutation(ingredient=ingredient)
 
 
+class DeleteCategoryMutation(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    ok = graphene.Boolean()
+
+    def mutate(self, info, **kwargs):
+        pk = kwargs.get('id')
+        Category.objects.get(pk=pk).delete()
+        return DeleteCategoryMutation(ok=True)
+
+
+class DeleteIngredientsMutation(graphene.Mutation):
+    class Arguments:
+        id = graphene.ID(required=True)
+
+    deleted = graphene.Boolean()
+
+    def mutate(self, info, **kwargs):
+        pk = kwargs.get('id')
+        Ingredient.objects.get(pk=pk).delete()
+        return DeleteCategoryMutation(deleted=True)
+
+
+class CreateCategoryMutation(graphene.Mutation):
+    class Arguments:
+        name =  graphene.String(required=True)
+
+    category = graphene.Field(CategoryType)
+
+    def mutate(root, info, **kwargs):
+        name = kwargs.get('name')
+        category = Category(name=name)
+        category.save()
+        return CreateCategoryMutation(category=category)
+
+
+class CreateIngredientMutation(graphene.Mutation):
+    class Arguments:
+        name =  graphene.String(required=True)
+        notes = graphene.String(required=True)
+        category = CategoryInput(required=True)
+
+    ingredient = graphene.Field(IngredientType)
+
+    def mutate(root, info, **kwargs):
+        name = kwargs.get('name')
+        notes = kwargs.get('notes')
+        category = kwargs.get('category')
+        category_id = category.get('id')
+        category = Category.objects.get(pk=category_id)
+        ingredient = Ingredient(name=name, notes=notes, category=category)
+        ingredient.save()
+        return CreateIngredientMutation(ingredient=ingredient)
+
+
+
 class Mutation:
+    delete_category = DeleteCategoryMutation.Field()
+    delete_ingredient = DeleteIngredientsMutation.Field()
+
+    create_category = CreateCategoryMutation.Field()
+    create_ingredient = CreateIngredientMutation.Field()
+
     update_category = CategoryMutation.Field()
     update_ingredient = IngredientMutation.Field()
 
