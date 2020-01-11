@@ -16,6 +16,12 @@ class IngredientType(DjangoObjectType):
     class Meta:
         model = Ingredient
 
+    @staticmethod
+    def def get_queryset(cls, queryset, info):
+        if info.context.user.is_anonymous:
+            return queryset # Do any specific filter here
+        return queryset #return super query all()
+
 
 # Add Type/Structure in Query
 class Query(object):
@@ -32,7 +38,10 @@ class Query(object):
                                 notes=graphene.String())
 
     def resolve_all_category(self, info, **kwargs):
-        return Category.objects.all()
+        if info.context.user.is_authenticated:
+            return Category.objects.all()
+        else:
+            return None
 
     def resolve_all_ingredients(self, info, **kwargs):
         # return Ingredient.objects.select_related('category').all()
